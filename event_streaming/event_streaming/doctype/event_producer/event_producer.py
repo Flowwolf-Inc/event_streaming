@@ -178,8 +178,7 @@ class EventProducer(Document):
 						{
 							"ref_doctype": ref_doctype,
 							"status": get_approval_status(config, ref_doctype),
-							"unsubscribed": entry.unsubscribe,
-							"condition": entry.condition,
+							"unsubscribed": entry.unsubscribe
 						}
 					)
 				event_consumer.user = self.user
