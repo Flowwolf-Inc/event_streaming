@@ -296,6 +296,10 @@ def sync(update, producer_site, event_producer, in_retry=False):
 					print(frappe.get_traceback())
 				return "Failed"
 			log_event_sync(update, event_producer.name, "Failed", frappe.get_traceback())
+	else:
+		if in_retry:
+			return "Ignored"
+		log_event_sync(update, event_producer.name, "Ignored")
 
 	event_producer.set_last_update(update.creation)
 	frappe.db.commit()
