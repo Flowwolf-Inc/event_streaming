@@ -278,27 +278,42 @@ def get_config(event_config):
 
 def sync(update, producer_site, event_producer, in_retry=False):
 	"""Sync the individual update"""
-	try:
-		if update.update_type == "Create":
-			set_insert(update, producer_site, event_producer.name)
-		if update.update_type == "Update":
-			set_update(update, producer_site)
-		if update.update_type == "Delete":
-			set_delete(update)
-		if in_retry:
-			return "Synced"
-		log_event_sync(update, event_producer.name, "Synced")
+	if producer_has_access(update, event_producer):
+		try:
+			if update.update_type == "Create":
+				set_insert(update, producer_site, event_producer.name)
+			if update.update_type == "Update":
+				set_update(update, producer_site)
+			if update.update_type == "Delete":
+				set_delete(update)
+			if in_retry:
+				return "Synced"
+			log_event_sync(update, event_producer.name, "Synced")
 
-	except Exception:
-		if in_retry:
-			if frappe.flags.in_test:
-				print(frappe.get_traceback())
-			return "Failed"
-		log_event_sync(update, event_producer.name, "Failed", frappe.get_traceback())
+		except Exception:
+			if in_retry:
+				if frappe.flags.in_test:
+					print(frappe.get_traceback())
+				return "Failed"
+			log_event_sync(update, event_producer.name, "Failed", frappe.get_traceback())
 
 	event_producer.set_last_update(update.creation)
 	frappe.db.commit()
 
+def producer_has_access(update, event_producer):
+	try:
+		condition = get_condition(event_producer.producer_doctypes, update.data.get("doctype"))
+		if not condition:
+			return True
+		condition: str = condition
+		if condition.startswith("cmd:"):
+			cmd = condition.split("cmd:")[1].strip()
+			args = {"consumer": consumer, "doc": update.data, "update_log": update}
+			return frappe.call(cmd, **args)
+		else:
+			return frappe.safe_eval(condition, frappe._dict(doc=update.data))
+	except Exception as e:
+		consumer.log_error("has_consumer_access error")
 
 def set_insert(update, producer_site, event_producer):
 	"""Sync insert type update"""
