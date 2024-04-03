@@ -178,7 +178,8 @@ class EventProducer(Document):
 						{
 							"ref_doctype": ref_doctype,
 							"status": get_approval_status(config, ref_doctype),
-							"unsubscribed": entry.unsubscribe
+							"unsubscribed": entry.unsubscribe,
+							"condition": get_condition(config, ref_doctype)
 						}
 					)
 				event_consumer.user = self.user
@@ -215,6 +216,12 @@ def get_approval_status(config, ref_doctype):
 			return entry.get("status")
 	return "Pending"
 
+def get_condition(config, ref_doctype):
+	"""return condtion for consumption"""
+	for entry in config:
+		if entry.get("ref_doctype") == ref_doctype:
+			return entry.get("condition")
+	return None
 
 @frappe.whitelist()
 def pull_producer_data():

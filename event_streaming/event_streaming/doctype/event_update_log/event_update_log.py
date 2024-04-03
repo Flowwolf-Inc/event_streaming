@@ -29,6 +29,8 @@ def notify_consumers(doc, event):
 
 	consumers = check_doctype_has_consumers(doc.doctype)
 	if consumers:
+		if doc.doctype == "Communication":
+			doc.timeline_links = []
 		if event == "after_insert":
 			doc.flags.event_update_log = make_event_update_log(doc, update_type="Create")
 		elif event == "on_trash":
