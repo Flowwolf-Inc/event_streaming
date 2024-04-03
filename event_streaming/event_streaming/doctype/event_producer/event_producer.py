@@ -311,7 +311,7 @@ def producer_has_access(update, event_producer):
 			args = {"consumer": consumer, "doc": update.data, "update_log": update}
 			return frappe.call(cmd, **args)
 		else:
-			return frappe.safe_eval(condition, frappe._dict(doc=update.data))
+			return frappe.safe_eval(condition, frappe._dict(doc=frappe._dict(update.data)))
 	except Exception as e:
 		frappe.log_error("has_consumer_access error")
 
