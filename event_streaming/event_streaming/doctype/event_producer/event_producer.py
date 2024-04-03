@@ -313,7 +313,7 @@ def producer_has_access(update, event_producer):
 		else:
 			return frappe.safe_eval(condition, frappe._dict(doc=update.data))
 	except Exception as e:
-		consumer.log_error("has_consumer_access error")
+		frappe.log_error("has_consumer_access error")
 
 def set_insert(update, producer_site, event_producer):
 	"""Sync insert type update"""
