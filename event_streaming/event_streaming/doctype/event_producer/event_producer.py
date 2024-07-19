@@ -579,7 +579,7 @@ def new_event_notification(producer_url):
 	enqueued_method = "event_streaming.event_streaming.doctype.event_producer.event_producer.pull_from_node"
 	jobs = get_jobs()
 	if not jobs or enqueued_method not in jobs[frappe.local.site]:
-		frappe.enqueue(enqueued_method, queue="default", **{"event_producer": producer_url})
+		frappe.enqueue(enqueued_method, queue="default", now=True, **{"event_producer": producer_url})
 
 
 @frappe.whitelist()
