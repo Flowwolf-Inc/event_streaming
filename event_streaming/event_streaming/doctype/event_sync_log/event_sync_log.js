@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("Event Sync Log", {
 	refresh: function (frm) {
-		if (frm.doc.status == "Failed") {
+		if (["Failed", "Ignored"].includes(frm.doc.status)) {
 			frm.add_custom_button(__("Resync"), function () {
 				frappe.call({
 					method: "event_streaming.event_streaming.doctype.event_producer.event_producer.resync",
